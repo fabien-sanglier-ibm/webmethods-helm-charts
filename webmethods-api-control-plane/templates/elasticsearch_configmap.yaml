@@ -1,7 +1,10 @@
+{{- if not .Values.applications.es_external.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name:  {{ .Values.applications.es.name }}-config
+  name: {{ include "webmethods-api-control-plane.name-es" . }}
+  labels:
+    {{- include "webmethods-api-control-plane.labels" . | nindent 4 }}
 data:
   ES_JAVA_OPTS: "-Xms512m -Xmx512m"
   cluster.initial_master_nodes: "{{ .Values.applications.es.cluster.initial_master_nodes }}"
@@ -10,4 +13,4 @@ data:
   network.host: "0.0.0.0"
   xpack.ml.enabled: "false"
   xpack.security.enabled: "false"
----
+{{- end }}

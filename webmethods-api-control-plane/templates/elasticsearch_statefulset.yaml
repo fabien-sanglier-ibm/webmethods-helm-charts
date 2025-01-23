@@ -1,15 +1,18 @@
+{{- if not .Values.applications.es_external.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.applications.es.name }}
+  name: {{ include "webmethods-api-control-plane.name-es" . }}
   labels:
+    {{- include "webmethods-api-control-plane.labels" . | nindent 4 }}
     app: {{ .Values.applications.es.name }}
 spec:
-  serviceName: {{ .Values.applications.es.name }}-headless
+  serviceName: {{ include "webmethods-api-control-plane.name-es" . }}-headless
   podManagementPolicy: Parallel
   replicas: {{ .Values.applications.es.replicas }}
   selector:
     matchLabels:
+      {{- include "webmethods-api-control-plane.selectorLabels" . | nindent 6 }}
       app: {{ .Values.applications.es.name }}
   updateStrategy:
     type: RollingUpdate
@@ -27,20 +30,24 @@ spec:
             storage: {{ .Values.applications.es.storage }}
   template:
     metadata:
+      {{- with .Values.applications.es.podAnnotations }}
       annotations:
-        sensor.falcon-system.crowdstrike.com/injection: disabled
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
+        {{- include "webmethods-api-control-plane.selectorLabels" . | nindent 8 }}
         app: {{ .Values.applications.es.name }}
+        date: "{{ now | unixEpoch }}"
     spec:
+      serviceAccountName: {{ include "webmethods-api-control-plane.serviceAccountName" . }}
       securityContext:
-        fsGroup: 1000
+        {{- toYaml .Values.applications.es.podSecurityContext | nindent 8 }}
       initContainers:
       - name: init-sysctl
         image: public.ecr.aws/docker/library/busybox:latest
         imagePullPolicy: IfNotPresent
         securityContext:
-          privileged: true
-          runAsUser: 0
+          {{- toYaml .Values.applications.es.initContainerSecurityContext | nindent 10 }}
         command: ["sysctl", "-w", "vm.max_map_count=262144"]
       volumes:
         - name: logs
@@ -55,20 +62,12 @@ spec:
             cpu: {{ .Values.applications.es.resources.requests.cpu }}
             memory: {{ .Values.applications.es.resources.requests.memory }}
         securityContext:
-          privileged: true
-          runAsUser: 1000
-          capabilities:
-            add:
-            - IPC_LOCK
-            - SYS_RESOURCE
-            - SYS_ADMIN
-            - DAC_OVERRIDE
-            - DAC_READ_SEARCH
+          {{- toYaml .Values.applications.es.containerSecurityContext | nindent 10 }}
         image: {{ .Values.applications.es.imageName }}:{{ .Values.applications.es.imageTag }}
         imagePullPolicy: "IfNotPresent"
         envFrom:
         - configMapRef:
-            name: {{ .Values.applications.es.name }}-config
+            name: {{ include "webmethods-api-control-plane.name-es" . }}
         env:
         - name: node.name
           valueFrom:
@@ -94,3 +93,4 @@ spec:
             mountPath: /usr/share/elasticsearch/data
           - name: logs
             mountPath: /usr/share/elasticsearch/logs
+{{- end }}
