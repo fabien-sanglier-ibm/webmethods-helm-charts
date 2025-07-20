@@ -20,6 +20,23 @@ applications:
         # -- Minimum Memory resource units
         memory: 512Mi
     logLevel: TRACE
+    tls:
+      enabled: true
+      certsSecret:
+        name: certs-secret
+        key: tls.key
+        crt: tls.crt
+        keystore: keystore.jks
+        truststore: truststore.jks
+      keystore:
+        type: JKS
+        passwordSecretsName: ""
+        password: webmethods
+        keyAlias: webmethods
+        keyAliasPassword: webmethods
+      trustStore:
+        passwordSecretsName: ""
+        password: webmethods
   engine:
     name: engine
     # -- Image name of engine

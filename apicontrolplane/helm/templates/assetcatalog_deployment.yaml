@@ -43,17 +43,47 @@ spec:
       volumes:
       - name: certs
         secret:
-          secretName: {{ .Values.secrets.certs.name }}
+          secretName: {{ .Values.applications.assetcatalog.tls.certsSecret.name }}
       containers:
       - image: {{ .Values.applications.assetcatalog.imageName }}:{{ .Values.applications.assetcatalog.imageTag | default .Chart.AppVersion }}
         name: {{ .Values.applications.assetcatalog.name }}
         volumeMounts:
         - name: certs
-          mountPath: {{ .Values.secrets.certs.mountPath }}
+          mountPath: /certs
           readOnly: true
         envFrom:
         - configMapRef:
             name: {{ .Values.applications.assetcatalog.name }}-config
+        env:
+        {{- with .Values.applications.assetcatalog.tls }}
+        {{- if .keystore.passwordSecretsName }}
+        - name: SERVER_SSL_KEY_STORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .keystore.passwordSecretsName }}
+              key: "keystore"
+        - name: SERVER_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .keystore.passwordSecretsName }}
+              key: "keystorealias"
+        {{- else }}
+        - name: SERVER_SSL_KEY_STORE_PASSWORD
+          value: {{ .keystore.password }}
+        - name: SERVER_SSL_KEY_PASSWORD
+          value: {{ .keystore.keyAliasPassword }}
+        {{- end }}
+        {{- if .trustStore.passwordSecretsName }}
+        - name: SERVER_SSL_TRUST_STORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .trustStore.passwordSecretsName }}
+              key: "truststore"
+        {{- else }}
+        - name: SERVER_SSL_TRUST_STORE_PASSWORD
+          value: {{ .trustStore.password }}
+        {{- end }}
+        {{- end }}
         imagePullPolicy: Always
         securityContext:
           runAsNonRoot: true
@@ -68,12 +98,13 @@ spec:
         ports:
           - containerPort: 8443
             name: http
+        {{- with .Values.applications.assetcatalog.tls }}
         readinessProbe:
           exec:
             command:
               - sh
               - -c
-              - "curl -fk -s --cert /certs/ac-cert.pem --key /certs/ac-key.pem  https://localhost:8443/api/assetcatalog/health/readiness || exit 1"
+              - "curl -fk -s --cert /certs/{{ .certsSecret.crt }} --key /certs/{{ .certsSecret.key }} https://localhost:8443/api/assetcatalog/health/readiness || exit 1"
           initialDelaySeconds: 100
           periodSeconds: 20
           successThreshold: 1
@@ -84,12 +115,13 @@ spec:
             command:
               - sh
               - -c
-              - "curl -fk -s --cert /certs/ac-cert.pem --key /certs/ac-key.pem  https://localhost:8443/api/assetcatalog/health/liveness || exit 1"
+              - "curl -fk -s --cert /certs/{{ .certsSecret.crt }} --key /certs/{{ .certsSecret.key }} https://localhost:8443/api/assetcatalog/health/liveness || exit 1"
           initialDelaySeconds: 100
           periodSeconds: 20
           successThreshold: 1
           failureThreshold: 3
           timeoutSeconds: 15
+        {{- end }}
       terminationGracePeriodSeconds: 30
       imagePullSecrets:
         - name: {{ .Values.imagePullSecretName }}

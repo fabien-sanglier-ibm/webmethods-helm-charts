@@ -32,21 +32,19 @@ data:
   APICP_STORE_ASSETS_TRUSTSTORE_FILE_PATH: "/certs/truststore-ac.jks"
   APICP_STORE_ASSETS_TRUSTSTORE_PASSWORD: "webmethods"
 
-
   APICP_ENGINE_ENDPOINT: "https://{{ .Values.applications.engine.name }}-svc:8443"
   APICP_AUTH_JWKS_URI: "https://{{ .Values.applications.ingress.name }}-svc:8443/api/ingress/v1/discovery/keys"
 
-  SERVER_PORT: "8443"
-  SERVER_SSL_ENABLED: "true"
-  SERVER_SSL_KEY_ALIAS: "webmethods"
-  SERVER_SSL_KEY_PASSWORD: "webmethods"
-  SERVER_SSL_KEY_STORE: "/certs/keystore-ac.jks"
-  SERVER_SSL_KEY_STORE_PASSWORD: "webmethods"
-  SERVER_SSL_KEY_STORE_TYPE: "JKS"
+  SERVER_PORT: 8443
 
-  SERVER_SSL_TRUST_STORE: "/certs/truststore-ac.jks"
-  SERVER_SSL_TRUST_STORE_PASSWORD: "webmethods"
+  {{- with .Values.applications.assetcatalog.tls }}
+  SERVER_SSL_ENABLED: {{ .enabled }}
+  SERVER_SSL_KEY_ALIAS: {{ .keystore.keyAlias }}
+  SERVER_SSL_KEY_STORE: "/certs/{{ .certsSecret.keystore }}"
+  SERVER_SSL_KEY_STORE_TYPE: {{ .keystore.type }}
+  SERVER_SSL_TRUST_STORE: "/certs/{{ .certsSecret.truststore }}"
   SERVER_SSL_CLIENT_AUTH: "NEED"
+  {{- end }}
 
   OTEL_JAVAAGENT_ENABLED: "{{ .Values.applications.jaegertracing.enabled }}"
   {{- if .Values.applications.jaegertracing.enabled }}
