@@ -11,6 +11,12 @@ strategy: {}
 # -- The number of old ReplicaSets to retain to allow rollback.
 revisionHistoryLimit: 10
 
+# -- Skip License Key (for 11.x container images)
+skipLicenseKey: false
+
+# -- Skip Kibana Autostart Parameter for minimal 11.x container images
+skipKibanaAutostartParameter: false
+
 image:
   # -- The repository for the image. By default,
   # this points to the IBM webMethods container repository.
@@ -320,6 +326,10 @@ extraConfigMaps: []
 lifecycle: {}
 
 apigw:
+
+  # -- IS HOME directory, for 11.x images based on Microservices Runtime use /opt/softwareag/IntegrationServer
+  isHomeDir: /opt/softwareag/IntegrationServer/instances/default
+
   # -- Deploy Elasticsearch. Depends on Elasic Search Helm Charts. See https://github.com/elastic/helm-charts/blob/main/elasticsearch
   elasticSearchDeployment: true
 
@@ -459,7 +469,6 @@ apigw:
 
     kibana:
       dashboardInstance: "{{ printf \"http://%s-%s-kb-http:%d\" .Release.Name .Chart.Name (int .Values.kibana.port) }}"
-      autostart: false
 
     cluster:
       aware: "{{- $isClusterEnabled := or (gt (int .Values.replicaCount) 1) .Values.apigw.clusterAware -}} {{- if $isClusterEnabled -}} true {{- else -}} false {{- end }}"
@@ -573,6 +582,9 @@ elasticsearch:
   # Make sure that the image corresponds to the version field.
   image:
 
+  # -- Annotations for Elasticsearch crd
+  annotations: {}
+
   # -- Resource Settings for Elasticsearch
   # Example:
   #
@@ -683,6 +695,12 @@ elasticsearch:
     setMaxMapCount: true
     installMapperSizePlugin: true
 
+    # -- Extra command before Plugin Installer is called. This can be used to set environment variable regarding Proxy settings
+    # bevore the Plugin Installer is called. The Plugin Installer needs the `CLI_JAVA_OPTS` environment variable to work through a proxy.
+    # Use the following template for setting Java options to install Plugins behind a proxy.
+    # `export CLI_JAVA_OPTS="-Dhttp.proxyHost=host_name -Dhttp.proxyPort=port_number -Dhttps.proxyHost=host_name -Dhttps.proxyPort=https_port_number"`
+    extraCmdPluginInstaller: ""
+
     # -- Extra configuration parameters for Elasticsearch nodes to be appended to the default (none).
     # See https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-node-configuration.html
     extraConfig: {}
@@ -691,7 +709,7 @@ elasticsearch:
     # See https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-init-containers-plugin-downloads.html
     extraInitContainers: {}
 
-    # -- Annotations for Elasticsearch
+    # -- Annotations for Elasticsearch pod annotations
     annotations: {}
 
 
