@@ -67,9 +67,10 @@ data.
 
 ## Compatibility Matrix
 
-| NAME                  | CHART VERSION | APP VERSION |
-| :-------------------- | :-----------: | :---------: |
-| webmethods/terracotta |     `1.x`     |   `11.x`    |
+| NAME                  | CHART VERSION |  APP VERSION   |
+| :-------------------- |:-------------:|:--------------:|
+| webmethods/terracotta |     `1.x`     | `<  11.1.0.12` |
+| webmethods/terracotta |     `2.x`     | `>= 11.1.0.12` |
 
 ## Prerequisites
 
