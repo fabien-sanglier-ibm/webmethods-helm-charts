@@ -68,6 +68,7 @@ helm install um webmethods/universalmessaging
 | `1.0.8` | Setting of environment variable in Job template fixed. |
 | `1.1.0` | Custom Resource objects are supported. Enhancement in job template to add `extraSpec` options. |
 | `1.2.0` | Option `failedJobsHistoryLimit` for Cron Job added. |
+| `1.3.0` | Option `timeZone` for Cron Job added. `tpl` function support added on `podAnnotation` option. |
 
 ## Values
 
