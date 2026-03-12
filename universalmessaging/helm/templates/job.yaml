@@ -132,6 +132,9 @@ spec:
 {{- toYaml . | nindent 12 }}
           {{- end }}
   schedule: {{ $job.schedule | quote }}
+  {{- if hasKey $job "timeZone" }}
+  timeZone: {{ $job.timeZone | quote }}
+  {{- end }}
   successfulJobsHistoryLimit: {{ $job.successfulJobsHistoryLimit }}
   {{- if hasKey $job "failedJobsHistoryLimit" }}
   failedJobsHistoryLimit: {{ $job.failedJobsHistoryLimit }}
