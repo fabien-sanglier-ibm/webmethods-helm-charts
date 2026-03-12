@@ -37,7 +37,7 @@ spec:
     metadata:
       annotations:
         {{- with .Values.podAnnotations }}
-          {{- toYaml . | nindent 8 }}
+          {{- tpl (toYaml .) $context | nindent 8 }}
         {{- end }}
         {{- include "common.prometheus.annotations" (dict "port" .Values.prometheus.port "scrape" .Values.prometheus.scrape "path" .Values.prometheus.path "scheme" .Values.prometheus.scheme) | nindent 8 }}
       labels:
