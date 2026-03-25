@@ -18,7 +18,7 @@
 #  *   limitations under the License.
 #  *
 #  */
-
+{{- if .Values.um.licenseKeyProvided }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -33,4 +33,5 @@ metadata:
 data:
   licensekey:
     {{ .Values.license | toYaml | nindent 4 }}
+{{- end }}
 {{- end }}

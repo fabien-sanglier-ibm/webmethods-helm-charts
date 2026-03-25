@@ -17,6 +17,8 @@
 #  *   limitations under the License.
 #  *
 #  */
+
+{{- if .Values.terracotta.licenseKeyProvided }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -29,3 +31,4 @@ metadata:
 data:
   license.key: |
     {{- .Values.terracotta.license | nindent 4 }}
+{{- end }}

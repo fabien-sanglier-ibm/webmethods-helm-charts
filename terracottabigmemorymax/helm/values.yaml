@@ -79,6 +79,8 @@ terracotta:
   license: ""
   # -- ServiceAccountName for the terracotta related pods
   serviceAccountName: ""
+  # -- Is license provided
+  licenseKeyProvided: false
 
 # -- TSA container-specific configurations for probes
 tsaServer:

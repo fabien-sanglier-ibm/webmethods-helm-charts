@@ -81,6 +81,8 @@ um:
   basicAuthMandatory: "No"
   # -- Enable log4j2 as logging framework by specifying this environment variable with log4j2 as value. By default fLogger (UM Native) logging framework enabled.
   logFramework: ""
+  # -- Is license provided
+  licenseKeyProvided: false
 
 # -- Overwrites Chart name of release name in workload name. As default, the workload name is release name + '-' + Chart name. The workload name is at the end release name + '-' + value of `nameOverride`.
 nameOverride: ""

@@ -26,8 +26,10 @@ metadata:
     {{ toYaml . | nindent 4 }}
     {{- end }}
 data:
+  {{- if .Values.terracotta.licenseKeyProvided }}
   license.key: |
       {{- .Values.terracotta.license | nindent 4 }}
+  {{- end }}
   tc-config.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <!--

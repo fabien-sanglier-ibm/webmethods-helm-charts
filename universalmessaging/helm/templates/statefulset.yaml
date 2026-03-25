@@ -54,6 +54,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
+        {{- if .Values.um.licenseKeyProvided }}
         - name: licence-xml
           configMap:
             name: {{ .Values.licenseConfigMap }}            
@@ -61,6 +62,7 @@ spec:
             items:
             - key:  licensekey
               path: licence.xml
+        {{- end }}
         - name: jmx-exporter-config
           configMap:
             name: {{ include "common.names.fullname" . }}
